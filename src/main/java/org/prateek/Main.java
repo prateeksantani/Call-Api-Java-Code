@@ -16,7 +16,7 @@ public class Main {
         URL url = null;
         HttpURLConnection connection = null;
         int responseCode = 0;
-        String urlString = "https://api.zippopotam.us/us/33162";
+        String urlString = "https://api.nationalize.io/?name=nathaniel";
 
         try {
             url = new URL(urlString);
@@ -46,33 +46,24 @@ public class Main {
 
             // Parse the JSON response correctly
             JSONObject jsonResponse = new JSONObject(apiData.toString());
-            String postCode = jsonResponse.getString("post code");
-            String country = jsonResponse.getString("country");
-            String countryAbbreviation = jsonResponse.getString("country abbreviation");
-            JSONArray placesArray = jsonResponse.getJSONArray("places");
-            JSONObject placeObject = placesArray.getJSONObject(0);
-            String placeName = placeObject.getString("place name");
-            String longitude = placeObject.getString("longitude");
-            String state = placeObject.getString("state");
-            String stateAbbreviation = placeObject.getString("state abbreviation");
-            String latitude = placeObject.getString("latitude");
+            JSONArray countryArray = jsonResponse.getJSONArray("country");
 
-            // Create a new JSON object to store the extracted data
-            JSONObject extractedData = new JSONObject();
-            extractedData.put("post code", postCode);
-            extractedData.put("country", country);
-            extractedData.put("country abbreviation", countryAbbreviation);
+            // Create a new JSON array to store the extracted data
+            JSONArray extractedData = new JSONArray();
 
-            JSONArray places = new JSONArray();
-            JSONObject place = new JSONObject();
-            place.put("place name", placeName);
-            place.put("longitude", longitude);
-            place.put("state", state);
-            place.put("state abbreviation", stateAbbreviation);
-            place.put("latitude", latitude);
-            places.put(place);
+            for (int i = 0; i < countryArray.length(); i++) {
+                JSONObject countryObject = countryArray.getJSONObject(i);
+                String countryName = countryObject.getString("country_id");
+                double probability = countryObject.getDouble("probability");
 
-            extractedData.put("places", places);
+                // Create a new JSON object for each country
+                JSONObject countryData = new JSONObject();
+                countryData.put("country_id", countryName);
+                countryData.put("probability", probability);
+
+                // Add the country data to the extracted data array
+                extractedData.put(countryData);
+            }
 
             // Print the extracted JSON data
             System.out.println(extractedData.toString());
