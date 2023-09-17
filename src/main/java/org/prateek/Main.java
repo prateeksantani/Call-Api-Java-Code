@@ -1,5 +1,6 @@
 package org.prateek;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -15,7 +16,7 @@ public class Main {
         URL url = null;
         HttpURLConnection connection = null;
         int responseCode = 0;
-        String urlString = "https://api.chucknorris.io/jokes/random";
+        String urlString = "https://api.zippopotam.us/us/33162";
 
         try {
             url = new URL(urlString);
@@ -43,11 +44,38 @@ public class Main {
 
             in.close();
 
-            JSONObject jsonAPIResponse = new JSONObject(apiData.toString());
+            // Parse the JSON response correctly
+            JSONObject jsonResponse = new JSONObject(apiData.toString());
+            String postCode = jsonResponse.getString("post code");
+            String country = jsonResponse.getString("country");
+            String countryAbbreviation = jsonResponse.getString("country abbreviation");
+            JSONArray placesArray = jsonResponse.getJSONArray("places");
+            JSONObject placeObject = placesArray.getJSONObject(0);
+            String placeName = placeObject.getString("place name");
+            String longitude = placeObject.getString("longitude");
+            String state = placeObject.getString("state");
+            String stateAbbreviation = placeObject.getString("state abbreviation");
+            String latitude = placeObject.getString("latitude");
 
-            // Access the Chuck Norris joke from the JSON response
-            String joke = jsonAPIResponse.getString("value");
-            System.out.println("Chuck Norris Joke: " + joke);
+            // Create a new JSON object to store the extracted data
+            JSONObject extractedData = new JSONObject();
+            extractedData.put("post code", postCode);
+            extractedData.put("country", country);
+            extractedData.put("country abbreviation", countryAbbreviation);
+
+            JSONArray places = new JSONArray();
+            JSONObject place = new JSONObject();
+            place.put("place name", placeName);
+            place.put("longitude", longitude);
+            place.put("state", state);
+            place.put("state abbreviation", stateAbbreviation);
+            place.put("latitude", latitude);
+            places.put(place);
+
+            extractedData.put("places", places);
+
+            // Print the extracted JSON data
+            System.out.println(extractedData.toString());
         } else {
             System.out.println("API call could not be made!!!");
         }
